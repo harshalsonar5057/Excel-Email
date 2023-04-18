@@ -1,5 +1,5 @@
 {
-  "name": "excel-email",
+  "name": "lead_management",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -42,6 +42,7 @@
     "agora-rtc-sdk-ng": "^4.17.0",
     "agora-rtm-sdk": "^1.6.0-205",
     "axios": "^1.2.1",
+    "bcrypt": "^5.1.0",
     "body-parser": "^1.20.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
@@ -56,6 +57,7 @@
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
+    "multer": "^1.4.5-lts.1",
     "mysql2": "^2.3.3",
     "node": "^14.18.3",
     "node-cron": "^3.0.0",
@@ -64,6 +66,7 @@
     "path": "^0.12.7",
     "sequelize": "^5.22.5",
     "twilio": "^4.9.0",
+    "xlsx": "^0.18.5",
     "yarn": "^1.22.19"
   },
   "devDependencies": {
