@@ -15,6 +15,14 @@ export const createUser = async (req, res) => {
     });
 };
 
+export const login = (req,res) =>{
+  userServices.login(req).then((result)=>{
+  res.status(200).send(result);
+}).catch((error)=>{
+  res.status(422).send({status: 422,message:error.message|| "Something went wrong"})
+});
+}
+
 // logout
 export const logout = async (req, res, next) => {
   const bodyData = _.get(req, "tokenUser", {});

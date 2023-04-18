@@ -6,6 +6,8 @@ import path from "path";
 import http from "http";
 import _ from "lodash";
 import indexRouter from "./routes/index";
+import fs from "fs";
+import { ASSET_FILE_DIR } from "./common/appConstants";
 
 import { API_PREFIXED } from "./routes/app.routes";
 const app = express();
@@ -23,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(fileUpload());
 
-app.use(express.static(path.join(__dirname, "../assets/images")));
+app.use(express.static(path.join(__dirname, "../assets/files")));
 
 // End point of API
 app.use(API_PREFIXED, indexRouter);
@@ -52,7 +54,9 @@ app.use(function (err, req, res, next) {
     message: err.message ? err.message : "Something went wrong.",
   });
 });
-
+if (!fs.existsSync(`${ASSET_FILE_DIR}files`)) {
+  fs.mkdirSync(`${ASSET_FILE_DIR}files`)
+}
 
 // Initialize the Server
 /**

@@ -4,26 +4,27 @@ import Sequelize from "sequelize";
 import dbHelper from '../common/dbHelper';
 
 export default (sequelize, DataTypes) => {
-  var Users = sequelize.define("users", {
+  var FileDetails = sequelize.define("fileDetails", {
 
-    userName: {
+    fileName: {
       type: Sequelize.STRING(200)
     },
-    email: {
+    status: {
       type: Sequelize.STRING(30),
     },
-    password: {
-      type: Sequelize.STRING(70),
+    total_records: {
+      type: Sequelize.INTEGER(10),
     },
-    token: {
-      type: Sequelize.TEXT,
+    total_valid_records: {
+      type: Sequelize.INTEGER(10),
     },
+
   },
     {
-      tableName: "users",
+      tableName: "fileDetails",
       updatedAt: "updated_at",
       createdAt: "created_at"
     });
 
-  return Users;
+  return FileDetails;
 };
