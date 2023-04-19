@@ -36,35 +36,6 @@ export const logout = async (req, res, next) => {
     });
 };
 
-// verify user by otp 
-export const verifyOtp = async (req, res, next) => {
-  const data = {
-    userId: req.params.Id,
-    otp: req.body.otp
-  }
-  userServices.verifyOtp(data).then((result) => {
-    res.status(200).send(result);
-  })
-    .catch((err) => {
-      res
-        .status(422)
-        .send({ status: 422, message: err.message || "Something went wrong!" });
-    });
-};
-
-// Resend otp 
-export const resendOtp = async (req, res, next) => {
-  const mobile = req.body.mobile;
-  userServices.resendOtp(mobile).then((result) => {
-    res.status(200).send(result);
-  })
-    .catch((err) => {
-      res
-        .status(422)
-        .send({ status: 422, message: err.message || "Something went wrong!" });
-    });
-};
-
 // update user
 export const updateUser = async (req, res) => {
   userServices.updateUser(req).then((result) => {

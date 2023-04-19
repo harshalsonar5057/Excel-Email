@@ -23,3 +23,13 @@ export const readFile = async (req, res) => {
         .send({ status: 422, message: err.message || "Something went wrong!" });
     });
 };
+export const sendEmail = async (req, res) => {
+  excelServices.sendEmail(req).then((result) => {
+    res.status(result.status).send(result);
+  })
+    .catch((err) => {
+      res
+        .status(422)
+        .send({ status: 422, message: err.message || "Something went wrong!" });
+    });
+};

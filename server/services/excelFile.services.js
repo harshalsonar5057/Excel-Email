@@ -3,13 +3,15 @@ import { get, isEmpty, isObject, omit, find, chain } from "lodash";
 const _ = { get, isEmpty, isObject, omit, find, chain };
 import Models from "../models";
 import appConfig from "../common/appConfig";
-import { leadStatus } from "../common/enum";
 import dbHelper from "../common/dbHelper";
 import msgConst from "../common/msgConstants";
 import { FILE_DIR } from "../common/appConstants";
-import { fileStatus } from "../common/enum";
+import { fileStatus, leadStatus } from "../common/enum";
 import fs from "fs";
 import reader from "xlsx";
+import cron from "node-cron";
+import nodeMailer from "nodemailer";
+
 // Create User
 const uploadFile = async (req) => {
   let responseData = statusConst.error;
@@ -17,13 +19,11 @@ const uploadFile = async (req) => {
     if (req.files) {
       //Set file name and upload path to upload File
       const fileSize = Object.keys(req.files).length;
-      console.log("fileSize===>", fileSize);
       const file = req.files.file;
       const fileName = `excel-${Date.now().toString()}.${
         "xlsx".split("/")[1] || "xlsx"
       }`;
       const filePath = `${FILE_DIR}${fileName}`;
-      console.log("filePath====>", filePath);
       // Move excel file to file folder
       file.mv(filePath, (err) => {
         if (err) {
@@ -69,6 +69,7 @@ const uploadFile = async (req) => {
   }
   return responseData;
 };
+
 const readFile = async (req) => {
   let responseData = statusConst.error;
   try {
@@ -93,6 +94,7 @@ const readFile = async (req) => {
           const data = await sheetToJson(file.fileName);
           if (data.length > 0) {
             await validateEmailsAndInsert(data, file?.id);
+            await unlinkFile(FILE_DIR + file.fileName);
           }
         });
       });
@@ -119,9 +121,9 @@ const readFile = async (req) => {
   }
   return responseData;
 };
+
 const sheetToJson = async (fileName) => {
   try {
-    console.log("${FILE_DIR}${fileName}==>", `${FILE_DIR}${fileName}`);
     const file = reader.readFile(`${FILE_DIR}${fileName}`);
     let data = [];
     const sheets = file.SheetNames;
@@ -138,39 +140,133 @@ const sheetToJson = async (fileName) => {
 };
 
 const validateEmailsAndInsert = async (emails, fileId) => {
-  const emailRegex = new RegExp(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
-  const validLeads = [];
-  let totalRecords = 0;
-  let totalValidRecords = 0;
-  emails.forEach((row) => {
-    totalRecords = totalRecords + 1;
-    const isValidEmail = emailRegex.test(row?.Email);
-    if (isValidEmail === true) {
-      row["email"] = row.Email;
-      row["title"] = row.Title;
-      row["status"] = leadStatus.PENDING;
-      row["created_at"] = new Date();
-      row["updated_at"] = new Date();
-      validLeads.push(row);
-      totalValidRecords = totalValidRecords + 1;
-    }
-  });
-    const fileDetails =  await Models.fileDetails.findOne({
+  try {
+    const emailRegex = new RegExp(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+    const validLeads = [];
+    let totalRecords = 0;
+    let totalValidRecords = 0;
+    emails.forEach((row) => {
+      totalRecords = totalRecords + 1;
+      const isValidEmail = emailRegex.test(row?.Email);
+      if (isValidEmail === true) {
+        row["email"] = row.Email;
+        row["title"] = row.Title;
+        row["status"] = leadStatus.PENDING;
+        row["created_at"] = new Date();
+        row["updated_at"] = new Date();
+        validLeads.push(row);
+        totalValidRecords = totalValidRecords + 1;
+      }
+    });
+    const fileDetails = await Models.fileDetails.findOne({
       where: {
         id: fileId,
       },
-    })
-   if (!_.isEmpty(fileDetails)) {
-    await fileDetails.update({total_records:totalRecords,total_valid_records:totalValidRecords},{where: {id: fileId,}});
-   }
-  if (validLeads.length > 0) {
-    await Models.leads.bulkCreate(validLeads);
+    });
+    if (!_.isEmpty(fileDetails)) {
+      await fileDetails.update(
+        {
+          total_records: totalRecords,
+          total_valid_records: totalValidRecords,
+          status: fileStatus.PROCEED,
+        },
+        { where: { id: fileId } }
+      );
+    }
+    if (validLeads.length > 0) {
+      await Models.leads.bulkCreate(validLeads);
+    }
+  } catch (error) {
+    throw error;
   }
+};
+
+const unlinkFile = async (filepath) => {
+  fs.unlink(filepath, (err) => {
+    if (err) console.log(err);
+    else {
+      console.log("\nDeleted file: ", filepath);
+    }
+  });
+};
+
+// cron.schedule('*/2 * * * *', async () => {
+//   console.log('Running a task every minute');
+//   const allPendingLeads = await Models.leads.findAll({where:{status:leadStatus.PENDING}});
+//   console.log("allPendingLeads====>",allPendingLeads);
+// });
+
+const sendEmail = async (req) => {
+  let responseData = statusConst.error;
+  try {
+    const allPendingLeads = await Models.leads.findAll({
+      where: { status: leadStatus.PENDING },
+    });
+    const leads = [];
+    const leadIds = [];
+    if (allPendingLeads.length > 0) {
+      allPendingLeads.forEach((lead) => {
+        leads.push(lead.dataValues);
+        leadIds.push(lead.dataValues?.id);
+      });
+    }
+    if (leads.length > 0) {
+      leads.map(async lead => {
+        const mailRes =  await userCreateEmail(lead.email);
+      })
+    }
+    await Models.leads.update({ status : leadStatus.PROCEED },{ where : { id : leadIds }});
+    responseData = { status: 200, message: "Email send SuccessFully.",Ids:leadIds };
+  } catch (error) {
+    let errors = {};
+    responseData = { status: 400, message: error.message };
+
+    if (
+      ["SequelizeValidationError", "SequelizeUniqueConstraintError"].includes(
+        error.name
+      )
+    ) {
+      errors = dbHelper.formatSequelizeErrors(error);
+      responseData = {
+        status: 422,
+        message: "Unable to process form request",
+        errors,
+      };
+    } else {
+      responseData = { status: 400, message: error.message };
+    }
+  }
+  return responseData;
+};
+
+const userCreateEmail = async (Email) => {
+  const transporter = nodeMailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    service: "gmail",
+    secure: false,
+    auth: {
+      user: "aniket.bediskar.5057@gmail.com",
+      pass: "rvbbvzbwrgkllhip",
+    },
+  });
+
+ const res =  await transporter.sendMail({
+    from: "aniket.bediskar.5057@gmail.com",
+    to: Email,
+    subject: "User login credentials",
+    html: `<!doctype html>
+    <html>
+    </html>`,
+  });
+
+  return res;
 };
 const ExcelServices = {
   uploadFile,
   readFile,
   sheetToJson,
+  sendEmail,
 };
 
 export default ExcelServices;
