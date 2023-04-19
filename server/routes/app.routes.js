@@ -5,6 +5,8 @@ export const API_PREFIXED = "/api";
 
 export const moduleRoutes = {
   user: "/user",
-  excel: "/excel"
+  excel: "/excel",
+  vender: "/vender",
+  lead: "/lead"
 }
 
