@@ -25,3 +25,14 @@ export const commonStatuses = {
     value: 1
   }
 }
+
+export default {
+  pageSize: 15,
+  pageSizeLimit: 200,
+  timeZone: 'Asia/Kolkata',
+  thumbMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp'],
+  excelFileMimeTypes: ['application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+  // videoMimeTypes: ['video/MP4', 'video/MKV', 'video/gif', 'video/bmp'],
+  fontMimeTypes: ['ttf', 'otf'],
+  standardDateFormat: "YYYY-MM-DD HH:mm:ss",
+}

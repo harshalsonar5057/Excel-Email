@@ -3,15 +3,39 @@ import { get } from "lodash";
 
 const _ = { get };
 
-export const createUservalidation = () => {
-  return [
-    body("mobile")
-      .not()
-      .isEmpty()
-      .withMessage("mobile is required")
-      .isLength({ min: 4, max: 16 })
-      .withMessage("enter valid mobile ")
-    // .matches(/^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/)
-    // .withMessage("Must contains at least digit & valid mobile number"),
-  ];
-};
+//  CreateUser
+export const userCreateValidation = [
+  body("userName").not().isEmpty()
+  .withMessage("userName is required"),
+  body("email").not().isEmpty().withMessage("Email is required")
+    .isEmail()
+    .withMessage("Valid email address is required"),
+  body("password")
+    .not()
+    .isEmpty()
+    .withMessage("password is required")
+    .isLength({
+      min: 4,
+      max: 16,
+    })
+    .withMessage("Password must be between 4 to 16 characters")
+    .matches(/^(?=.*[a-z])(?!.* )(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/)
+    .withMessage("Must contains upper case, lower case, digit, special character"),
+  body("confirmPassword")
+    .not()
+    .isEmpty()
+    .withMessage("Confirm password is required")
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Password and Confirm password does not match");
+      }
+      return true;
+    }),
+ 
+
+];
+
+export const loginValidation = [
+  body("email").not().isEmpty().withMessage("Email is required"),
+  body("password").not().isEmpty().withMessage("Password is required"),
+];
