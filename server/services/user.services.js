@@ -60,11 +60,14 @@ const login = async (req) => {
       },
     });
     if(!user){
-      responseData = { ...statusConst.unauthorized };
+      responseData = { ...statusConst.invalidEmail };
     }
     const password = data.password;
     const userPassword = _.get(user, "password", "");
     const validPassword = await bcrypt.compare(password, userPassword);
+    if (validPassword !== true) {
+      responseData = { ...statusConst.invalidEmail };
+    }
     if (
       !_.isEmpty(user) &&
       _.isObject(user) &&

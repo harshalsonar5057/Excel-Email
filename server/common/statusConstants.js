@@ -4,6 +4,7 @@ export default {
   success: { status: 200, message: 'Success' },
   fetchSucccess: { status: 200, message: "user fetch successfully" },
   unauthorized: { status: 401, message: 'Invalid Username or Password' },
+  invalidEmail: { status: 401, message: 'Invalid Email or Password' },
   authError: { status: 401, message: 'Invalid Username or Password' },
   noTokenProvided: { status: 401, message: 'No token provided' },
   tokenExpired: { status: 401, message: 'Token expired' },
