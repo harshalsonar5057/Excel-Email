@@ -59,9 +59,11 @@ const login = async (req) => {
         email: data.email,
       },
     });
+    if(!user){
+      responseData = { ...statusConst.unauthorized };
+    }
     const password = data.password;
     const userPassword = _.get(user, "password", "");
-    const hashPassword = await bcrypt.hash(data.password, appConfig.bcryptSaltRound);
     const validPassword = await bcrypt.compare(password, userPassword);
     if (
       !_.isEmpty(user) &&
