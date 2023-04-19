@@ -1,6 +1,6 @@
 export const fileStatus = {
    PENDING : 'PENDING',
-   DONE : 'DONE'
+   PROCEED : 'PROCEED',
   }
   
 export const leadStatus = {

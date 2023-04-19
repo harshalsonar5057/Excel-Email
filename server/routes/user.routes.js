@@ -7,10 +7,6 @@ import { createUser,login } from "../controllers/user.controller";
 router.post("/create",  validateRequest, createUser);
 router.post("/login",login);
 // router.post("/logout", [authMiddleware.user], logout)
-
-// router.post("/verifyOtp/:Id", verifyOtp);
-// router.put("/resendOtp", createUservalidation(), validateRequest, resendOtp);
-
 // router.patch("/:Id", [authMiddleware.user], updateUser);
 
 

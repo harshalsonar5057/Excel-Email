@@ -22,7 +22,6 @@ const createUser = async (data) => {
         created_at: new Date(),
         updated_at: new Date(),
       };
-      console.log('data.password==>',data.password);
       if(data.password) {
         const hashPassword = await bcrypt.hash(data.password, appConfig.bcryptSaltRound);
         userPayload['password'] = hashPassword;
@@ -63,9 +62,7 @@ const login = async (req) => {
     const password = data.password;
     const userPassword = _.get(user, "password", "");
     const hashPassword = await bcrypt.hash(data.password, appConfig.bcryptSaltRound);
-    console.log("userPassword==>",userPassword,"hashPassword==>",hashPassword,"password==>",password);
     const validPassword = await bcrypt.compare(password, userPassword);
-    console.log('validPassword==>',validPassword);
     if (
       !_.isEmpty(user) &&
       _.isObject(user) &&
@@ -76,7 +73,6 @@ const login = async (req) => {
         id: user.id,
       });
       const token = _.get(tokenData, "token", null);
-      console.log('token==>',token);
       if (token) {
         await user.update({ token });
         responseData = { ...statusConst.authSuccess, data: { token } };
@@ -159,9 +155,16 @@ const generateToken = async (options = {}) => {
   const updateToken = _.get(options, "updateToken", false) || false;
 
   try {
-
+    const userTableAttributes = [
+      "id",
+      "userName",
+      "email",
+      "updated_at",
+      "created_at",
+    ];
     // Find user by id
     let User = await Models.users.findOne({
+      attributes: userTableAttributes,
       where: { id: userId },
     });
 
