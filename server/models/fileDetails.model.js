@@ -12,6 +12,9 @@ export default (sequelize, DataTypes) => {
     status: {
       type: Sequelize.STRING(30),
     },
+    vender_id: {
+      type: Sequelize.INTEGER(11),
+    },
     total_records: {
       type: Sequelize.INTEGER(10),
     },
@@ -25,6 +28,16 @@ export default (sequelize, DataTypes) => {
       updatedAt: "updated_at",
       createdAt: "created_at"
     });
-
+    
+    FileDetails.associate = function(models){
+      models.fileDetails.belongsTo(models.venders,{
+          foreignKey:"vender_id"
+      })
+  }
+  FileDetails.associate = function (models) {
+    models.fileDetails.hasMany(models.leads, {
+      foreignKey: "file_ref_id",
+    });
+  };
   return FileDetails;
 };

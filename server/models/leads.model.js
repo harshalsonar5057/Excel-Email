@@ -15,7 +15,9 @@ export default (sequelize, DataTypes) => {
     status: {
       type: Sequelize.STRING(30),
     },
-
+    file_ref_id: {
+      type: Sequelize.INTEGER(11),
+    },
   },
     {
       tableName: "leads",
@@ -23,5 +25,10 @@ export default (sequelize, DataTypes) => {
       createdAt: "created_at"
     });
 
+    Leads.associate = function(models){
+      models.leads.belongsTo(models.fileDetails,{
+          foreignKey:"file_ref_id"
+      })
+  }
   return Leads;
 };

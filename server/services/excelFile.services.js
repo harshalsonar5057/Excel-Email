@@ -14,6 +14,7 @@ import nodeMailer from "nodemailer";
 
 // Create User
 const uploadFile = async (req) => {
+  const vender_id = req.body?.vender_id;
   let responseData = statusConst.error;
   try {
     if (req.files) {
@@ -36,6 +37,9 @@ const uploadFile = async (req) => {
       const payload = {
         fileName: fileName,
         status: fileStatus.PENDING,
+        vender_id: vender_id,
+        total_records:0,
+        total_valid_records:0,
         created_at: new Date(),
         updated_at: new Date(),
       };
@@ -158,6 +162,7 @@ const validateEmailsAndInsert = async (emails, fileId) => {
         row["status"] = leadStatus.PENDING;
         row["created_at"] = new Date();
         row["updated_at"] = new Date();
+        row["file_ref_id"] = fileId;
         validLeads.push(row);
         totalValidRecords = totalValidRecords + 1;
       }
