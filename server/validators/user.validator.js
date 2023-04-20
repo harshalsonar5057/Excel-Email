@@ -32,10 +32,14 @@ export const userCreateValidation = [
       return true;
     }),
  
-
 ];
 
 export const loginValidation = [
   body("email").not().isEmpty().withMessage("Email is required"),
   body("password").not().isEmpty().withMessage("Password is required"),
+];
+export const venderCreateValidation = [
+  body("venderName").not().isEmpty()
+  .withMessage("venderName is required"),
+ 
 ];
