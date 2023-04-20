@@ -79,6 +79,10 @@ const readFile = async (req) => {
       },
     });
     const files = [];
+ console.log("pendingFiles :",pendingFiles);
+ if (pendingFiles.length <= 0) {
+  responseData = { status: 200, message: "All Files are readed." };
+ }
     pendingFiles.map((data) => {
       files.push(data.dataValues);
     });
