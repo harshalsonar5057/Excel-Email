@@ -12,5 +12,5 @@ export const count = async (req, res) => {
       res
         .status(422)
         .send({ status: 422, message: err.message || "Something went wrong!" });
-    });
+    }); 
 };
