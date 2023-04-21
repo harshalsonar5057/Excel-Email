@@ -14,3 +14,11 @@ export const createVender = async (req, res) => {
         .send({ status: 422, message: err.message || "Something went wrong!" });
     });
 };
+
+export const getvender = async (req, res, next) => {
+  venderServices.getvender(req).then((result) => {
+    res.status(result.status).send(result);
+  }).catch((err) => {
+    res.status(422).send({ status: 422, message: err.message || "Something went wrong!" });
+  });
+};

@@ -1,10 +1,11 @@
-import express from 'express';
+import express from "express";
 const router = express.Router();
 import validateRequest from "../middleware/validateRequest.middleware";
-import { createVender } from "../controllers/vender.controller";
-import { venderCreateValidation  } from "../validators/user.validator";
+import { createVender, getvender } from "../controllers/vender.controller";
+import { venderCreateValidation } from "../validators/user.validator";
+import authMiddleware from "../middleware/auth.middleware";
+
 router.post("/create", [venderCreateValidation, validateRequest], createVender);
-
-
+router.get("/getAll", [authMiddleware.user], validateRequest, getvender);
 
 export default router;
