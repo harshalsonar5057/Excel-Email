@@ -7,7 +7,7 @@ import http from "http";
 import _ from "lodash";
 import indexRouter from "./routes/index";
 import fs from "fs";
-import { ASSET_FILE_DIR } from "./common/appConstants";
+import { ASSETS_DIR,ASSET_FILE_DIR } from "./common/appConstants";
 
 import { API_PREFIXED } from "./routes/app.routes";
 const app = express();
@@ -54,6 +54,9 @@ app.use(function (err, req, res, next) {
     message: err.message ? err.message : "Something went wrong.",
   });
 });
+if (!fs.existsSync(`${ASSETS_DIR}`)) {
+  fs.mkdirSync(`${ASSETS_DIR}`)
+}
 if (!fs.existsSync(`${ASSET_FILE_DIR}files`)) {
   fs.mkdirSync(`${ASSET_FILE_DIR}files`)
 }
