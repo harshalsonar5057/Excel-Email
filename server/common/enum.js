@@ -6,5 +6,6 @@ export const fileStatus = {
 export const leadStatus = {
     PENDING : 'PENDING',
     PROCEED : 'PROCEED',
-    INVALIDEMAIL : 'INVALIDEMAIL' 
+    INVALIDEMAIL : 'INVALIDEMAIL' ,
+    ACKNOWLEDGE : 'ACKNOWLEDGE' 
 }
