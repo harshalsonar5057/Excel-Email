@@ -33,3 +33,15 @@ export const sendEmail = async (req, res) => {
         .send({ status: 422, message: err.message || "Something went wrong!" });
     });
 };
+
+export const getPendingFile = async (req, res, next) => {
+  excelServices.getPendingFile(req)
+    .then((result) => {
+      res.status(result.status).send(result);
+    })
+    .catch((err) => {
+      res
+        .status(422)
+        .send({ status: 422, message: err.message || "Something went wrong!" });
+    });
+};
