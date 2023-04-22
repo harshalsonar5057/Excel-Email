@@ -4,6 +4,7 @@ const _ = { get, isEmpty, isObject, omit, find, chain };
 import Models from "../models";
 import appConfig from "../common/appConfig";
 import dbHelper from "../common/dbHelper";
+import Helper from "../common/helper";
 import msgConst from "../common/msgConstants";
 import { FILE_DIR } from "../common/appConstants";
 import { fileStatus, leadStatus } from "../common/enum";
@@ -271,11 +272,56 @@ const userCreateEmail = async (Email) => {
 
   return res;
 };
+
+const getPendingFile = async (req) => {
+  let responseData = statusConst.error;
+  const entityParams = _.get(req, "query", {});
+
+  try {
+    const { offset, limit, pagination } = Helper.dataPagination(entityParams);
+
+    const pendingFileDeatail = await Models.fileDetails.findAndCountAll({
+      where: { status:  fileStatus.PENDING },
+      offset: offset,
+      limit: limit,
+      order: [["id", "DESC"]],
+    });
+
+    if (pendingFileDeatail.rows.length > 0) {
+      pagination["totalPages"] = Math.ceil(
+        (pendingFileDeatail || pendingFileDeatail).count / pagination.pageSize
+      );
+      pagination["pageRecords"] = ((pendingFileDeatail || {}).rows || []).length || 0;
+
+      responseData = {
+        status: 200,
+        message: "pending-File data fetch successfully",
+        pagination,
+        data: pendingFileDeatail,
+        success: true,
+      };
+    } else {
+      responseData = {
+        status: 200,
+        message: "pending-File data fetch successfully",
+        pagination,
+        data: pendingFileDeatail,
+        success: true,
+      };
+    }
+  } catch (error) {
+    responseData = { status: 400, message: error.message, success: false };
+  }
+  return responseData;
+};
+
+
 const ExcelServices = {
   uploadFile,
   readFile,
   sheetToJson,
   sendEmail,
+  getPendingFile
 };
 
 export default ExcelServices;
