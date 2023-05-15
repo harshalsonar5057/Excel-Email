@@ -15,36 +15,49 @@ import bcrypt from "bcrypt";
 const createUser = async (data) => {
   let responseData = statusConst.error;
   try {
-      //Create User
-      const userPayload = {
-        userName: data.userName || "",
-        email	: data.email || "",
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
-      if(data.password) {
-        const hashPassword = await bcrypt.hash(data.password, appConfig.bcryptSaltRound);
-        userPayload['password'] = hashPassword;
-      }
-      const user = await Models.users.create(userPayload, { raw: true });
-      const userId = user.id;
+    //Create User
+    const userPayload = {
+      userName: data.userName || "",
+      email: data.email || "",
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
+    if (data.password) {
+      const hashPassword = await bcrypt.hash(
+        data.password,
+        appConfig.bcryptSaltRound
+      );
+      userPayload["password"] = hashPassword;
+    }
+    const user = await Models.users.create(userPayload, { raw: true });
+    const userId = user.id;
 
-      if (!user) {
-        throw new Error("Unable to create new user");
-      }
+    if (!user) {
+      throw new Error("Unable to create new user");
+    }
 
-      responseData = { status: 200, message: "user create successfully.", userId};
-
-
+    responseData = {
+      status: 200,
+      message: "user create successfully.",
+      userId,
+    };
   } catch (error) {
     let errors = {};
     responseData = { status: 400, message: error.message };
 
-    if (["SequelizeValidationError", "SequelizeUniqueConstraintError"].includes(error.name)) {
+    if (
+      ["SequelizeValidationError", "SequelizeUniqueConstraintError"].includes(
+        error.name
+      )
+    ) {
       errors = dbHelper.formatSequelizeErrors(error);
-      responseData = { status: 422, message: 'Unable to process form request', errors };
+      responseData = {
+        status: 422,
+        message: "Unable to process form request",
+        errors,
+      };
     } else {
-      responseData = { status: 400, message: error.message };;
+      responseData = { status: 400, message: error.message };
     }
   }
   return responseData;
@@ -59,7 +72,7 @@ const login = async (req) => {
         email: data.email,
       },
     });
-    if(!user){
+    if (!user) {
       responseData = { ...statusConst.invalidEmail };
     }
     const password = data.password;
@@ -77,10 +90,11 @@ const login = async (req) => {
       const tokenData = await generateToken({
         id: user.id,
       });
+      const userid = user.id;
       const token = _.get(tokenData, "token", null);
       if (token) {
         await user.update({ token });
-        responseData = { ...statusConst.authSuccess, data: { token } };
+        responseData = { ...statusConst.authSuccess, data: { token }, userid };
       }
     }
   } catch (error) {
@@ -89,8 +103,7 @@ const login = async (req) => {
   return responseData;
 };
 
-
-const updateUser = async req => {
+const updateUser = async (req) => {
   let responseData = statusConst.error;
   let data = _.get(req, "body", {});
   let Id = _.get(req, "params.Id", {});
@@ -103,7 +116,9 @@ const updateUser = async req => {
     } else {
       if (req.files) {
         let img = req.files.image;
-        ImageName = `user-${Date.now().toString()}.${((img.mimetype || "image/jpeg/").split('/')[1]) || 'jpeg'}`;
+        ImageName = `user-${Date.now().toString()}.${
+          (img.mimetype || "image/jpeg/").split("/")[1] || "jpeg"
+        }`;
         filePath = `${ASSET_IMAGES_DIR}${ImageName}`;
         // Move people profile image to public folder
         img.mv(filePath, (err) => {
@@ -118,16 +133,17 @@ const updateUser = async req => {
         image: ImageName,
       };
       userData.update({ ...userPayload });
-      responseData = { status: 200, message: 'user update Successfully', userPayload };
+      responseData = {
+        status: 200,
+        message: "user update Successfully",
+        userPayload,
+      };
     }
   } catch (error) {
-    responseData = { status: 200, message: 'Error' };
+    responseData = { status: 200, message: "Error" };
   }
   return responseData;
 };
-
-
-
 
 // LOGOUT
 const logout = async (data) => {
@@ -139,8 +155,8 @@ const logout = async (data) => {
     if (_.isEmpty(user)) {
       responseData = { status: 404, message: "User not found" };
     } else {
-      user.update({ token: "", });
-      responseData = { status: 200, message: "User logout Successfully", };
+      user.update({ token: "" });
+      responseData = { status: 200, message: "User logout Successfully" };
     }
   } catch (error) {
     responseData = { status: 404, message: error.message };
@@ -190,9 +206,9 @@ const generateToken = async (options = {}) => {
     if (updateToken == true) {
       await User.update({ token });
     }
-    responseData = { status: 200, message: 'Success', token };
+    responseData = { status: 200, message: "Success", token };
   } catch (error) {
-    responseData = { status: 404, message: 'Error' };
+    responseData = { status: 404, message: "Error" };
   }
   return responseData;
 };
@@ -208,7 +224,12 @@ const findByToken = async (token) => {
       },
     });
     if (!_.isEmpty(User) && _.isObject(User)) {
-      responseData = { status: 200, message: "Success", success: true, data: User };
+      responseData = {
+        status: 200,
+        message: "Success",
+        success: true,
+        data: User,
+      };
     } else {
       responseData = { status: 422, message: "user not found", success: false };
     }
@@ -219,13 +240,64 @@ const findByToken = async (token) => {
   return responseData;
 };
 
+const getAlluser = async (data) => {
+  let responseData = statusConst.error;
+  try {
+    const data = await Models.users.findAll();
+    responseData = { status: 200, message: "data fetch successfully", data };
+  } catch (error) {
+    let errors = {};
+    responseData = { status: 400, message: error.message };
+
+    if (
+      ["SequelizeValidationError", "SequelizeUniqueConstraintError"].includes(
+        error.name
+      )
+    ) {
+      errors = dbHelper.formatSequelizeErrors(error);
+      responseData = {
+        status: 422,
+        message: "Unable to process form request",
+        errors,
+      };
+    } else {
+      responseData = { status: 400, message: error.message };
+    }
+  }
+  return responseData;
+};
+
+const getSingleUser = async (req) => {
+  let responseData = statusConst.error;
+  let Id = _.get(req, "params.Id", {});
+  try {
+    let userData = await Models.users.findOne({ where: { id: Id } });
+    if (!userData) {
+      return { status: 404, message: "user not found" };
+    } else {
+      responseData = {
+        status: 200,
+        message: "user single get Successfully",
+        userData,
+      };
+    }
+  } catch (error) {
+    responseData = { status: 200, message: "Error" };
+  }
+  return responseData;
+};
+
+
+
 const UserServices = {
   login,
   logout,
   generateToken,
   createUser,
   findByToken,
-  updateUser
+  updateUser,
+  getAlluser,
+  getSingleUser,
 };
 
 export default UserServices;
