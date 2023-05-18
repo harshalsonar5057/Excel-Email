@@ -9,6 +9,6 @@ router.post("/create", [venderCreateValidation, validateRequest], createVender);
 router.get("/getAll", [authMiddleware.user], validateRequest, getvender);
 router.get("/:id", [authMiddleware.user], validateRequest, getSingleUser);
 router.delete("/:id", [authMiddleware.user], validateRequest, deleteVender);
-router.patch("/:Id", [authMiddleware.user], updaVender);
+router.put("/:id", [authMiddleware.user], updaVender);
 
 export default router;

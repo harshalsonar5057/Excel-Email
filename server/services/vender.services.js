@@ -98,9 +98,9 @@ const getvender = async (req) => {
 const getSingleUser = async (data) => {
   let responseData = statusConst.error;
   try {
-    let serviceData = await Models.venders.findOne({ where: { id: data } });
-    if (!serviceData) { return { status: 404, message: " Service not found" }; }
-    responseData = { status: 200, message: 'Success', serviceData };
+    let venderData = await Models.venders.findOne({ where: { id: data } });
+    if (!venderData) { return { status: 404, message: "vender not found" }; }
+    responseData = { status: 200, message: 'Success', venderData };
   } catch (error) {
     // let error;
     responseData = { status: 200, message: 'Error' };
@@ -126,25 +126,29 @@ const deleteVender = async (data) => {
   return responseData
 }
 
-const updaVender = async (data) => {
+const updaVender = async (req) => {
   let responseData = statusConst.error;
-  const venderId = _.get(data, "params.id", 0);
+  const {venderName} = req.body;
+  const { id } = req.params;
+  const updatedBy = req.tokenUser.id;
   try {
-    let venderData = await Models.venders.findOne({ where: { id: venderId } });
-    if (!venderData) {
-      return { status: 404, message: "vender not found" }
+    const vender = await Models.venders.findOne({ where: { id: id } });
+    if (!vender) {
+      throw new Error("vender not found");
     } else {
-      const userPayload = {
-        venderName: data.venderName || "",
-      };
-      userData.update({ ...userPayload });
+      vender.update({venderName});
     }
-    responseData = { status: 200, message: "vender delete successfully" }
+    responseData = {
+      status: 200,
+      message: "vender update successfully",
+      success: true,
+    };
   } catch (error) {
-    responseData = { status: 404, message: 'Error' }
+    responseData = { status: 400, message: error.message, success: false };
   }
-  return responseData
-}
+  return responseData;
+};
+
 
 const UserServices = {
   createVender,

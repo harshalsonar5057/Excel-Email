@@ -1,3 +1,4 @@
+import { log } from "console";
 import venderServices from "../services/vender.services";
 import { get, isEmpty, isObject, has, chain } from "lodash";
 const _ = { get, isEmpty, isObject, has, chain };
@@ -16,7 +17,8 @@ export const createVender = async (req, res) => {
 };
 
 export const getSingleUser = async (req, res, next) => {
-  venderServices.getSingleUser(req).then((result) => {
+  const bodydata = _.get(req, "params.id", 0);
+  venderServices.getSingleUser(bodydata).then((result) => {
     res.status(result.status).send(result);
   }).catch((err) => {
     res.status(422).send({ status: 422, message: err.message || "Something went wrong!" });
@@ -44,15 +46,10 @@ export const deleteVender = async (req, res) => {
   })
 };
 
-export const updaVender = async (req, res) => {
-  const bodydata = _.get(req, "params.id", 0);
-  venderServices.updaVender(bodydata).then((result) => {
-    res.status(200).send(result);
-  })
-    .catch((error) => {
-      res.status(422).send({
-        status: 422,
-        message: error.message || "Something went wrong!",
-      });
-    });
+export const updaVender = async (req, res, next) => {
+  venderServices.updaVender(req).then((result) => {
+      res.status(result.status).send(result);
+  }).catch((err) => {
+      res.status(422).send({ status: 422, message: err.message || "Something went wrong!" });
+  });
 };
