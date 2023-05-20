@@ -7,6 +7,7 @@ export const moduleRoutes = {
   user: "/user",
   excel: "/excel",
   vender: "/vender",
-  lead: "/lead"
+  lead: "/lead",
+  email: "/email"
 }
 
