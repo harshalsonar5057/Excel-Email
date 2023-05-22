@@ -6,13 +6,13 @@ import dbHelper from '../common/dbHelper';
 export default (sequelize, DataTypes) => {
   var emails = sequelize.define("themes", {
     content: {
-      type: Sequelize.STRING(200),
+      type: Sequelize.TEXT,
     },
     subject: {
-      type: Sequelize.STRING(30),
+      type: Sequelize.TEXT,
     },
     sincerely: {
-      type: Sequelize.STRING(30),
+      type: Sequelize.TEXT,
     },
     status: {
       type: Sequelize.STRING(30),

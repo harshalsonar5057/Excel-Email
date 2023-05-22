@@ -28,16 +28,3 @@ export const createTemplate = async (req, res) => {
         .send({ status: 422, message: err.message || "Something went wrong!" });
     });
 };
-
-export const sendTemplate = async (req, res) => {
-    const bodydata = _.get(req, "params.id", 0);
-    userServices.sendTemplate(bodydata).then((result) => {
-      res.status(200).send(result);
-    })
-      .catch((error) => {
-        res.status(422).send({
-          status: 422,
-          message: error.message || "Something went wrong!",
-        });
-      });
-  };
